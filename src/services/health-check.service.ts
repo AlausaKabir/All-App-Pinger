@@ -29,7 +29,7 @@ export class HealthCheckService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async monitorApps() {
     this.logger.log('Monitoring apps...');
     const apps = [
@@ -43,7 +43,7 @@ export class HealthCheckService {
         url: 'https://www.facebook.com',
       },
       {
-        name: 'Recruitment Service',
+        name: 'Recruitment API Service',
         url: 'https://transaction-api-1.onrender.com/',
         email: 'alausakabir0@gmail.com',
       },
