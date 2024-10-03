@@ -23,20 +23,25 @@ export class MailerService {
   async sendMail(to: string, appName: string): Promise<void> {
     const from = `${this.constantsService.appName} <${this.constantsService.nodemailerEmail}>`;
 
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+
+    const formattedDate = now.toLocaleString();
+
     const subject = `⚠️ Alert:: ${appName} is DOWN!!!`;
 
     const text =
       `Dear team,\n\n` +
-      `This is to notify you that the application "${appName}" is currently down and not responding as of ${new Date().toLocaleString()}. ` +
+      `This is to notify you that the application "${appName}" is currently down and not responding as of ${formattedDate}. ` +
       `Please take immediate action to investigate and restore the system.\n\n` +
       `Regards,\n` +
-      `The ${this.constantsService.appName} Team`;
+      `Team WARPSPEED`;
 
     const html = `
     <p>Dear team,</p>
-    <p>This is to notify you that the application <strong>${appName}</strong> is currently down and not responding as of <strong>${new Date().toLocaleString()}</strong>.</p>
+    <p>This is to notify you that the application <strong>${appName}</strong> is currently down and not responding as of <strong>${formattedDate}</strong>.</p>
     <p>Please take immediate action to investigate and restore the system.</p>
-    <p>Regards,<br/>The ${this.constantsService.appName} Team</p>
+    <p>Regards,<br/>Team WARPSPEED</p>
   `;
 
     try {
@@ -47,7 +52,7 @@ export class MailerService {
         text,
         html,
       });
-      this.logger.log(`Message sent: ${info.accepted[0]}`);
+      this.logger.log(`Message sent to ${info.accepted[0]}`);
     } catch (error) {
       this.logger.error(`Error sending email: ${error.message}`);
     }
