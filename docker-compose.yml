@@ -6,7 +6,7 @@ services:
     ports:
       - '3800:3800'
     environment: 
-      NODE_ENV: production
+      NODE_ENV: development
       APP_NAME: PINGER
       APP_DEV_URL: http://localhost:3800
       MAIL_SERVICE: gmail

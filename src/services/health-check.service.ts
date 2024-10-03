@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { catchError, lastValueFrom, TimeoutError } from 'rxjs';
 import { MailerService } from './mailer.service';
-import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConstantsService } from './constants.service';
 
 @Injectable()

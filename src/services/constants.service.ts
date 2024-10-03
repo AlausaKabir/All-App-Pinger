@@ -22,7 +22,7 @@ export class ConstantsService {
     return this.config.get<number>('PORT');
   }
 
-  get regApps(): number {
+  get regAppsCount(): number {
     return this.config.get<number>('APP_COUNT');
   }
   get isProduction(): boolean {
@@ -30,7 +30,7 @@ export class ConstantsService {
   }
 
   get monitoredApps(): { name: string; url: string; email: string }[] {
-    this.logger.log(`Checking for ${this.regApps} REGISTERED apps...`);
+    this.logger.log(`Checking for ${this.regAppsCount} REGISTERED apps...`);
     try {
       const apps = [];
       let i = 1;
