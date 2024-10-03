@@ -1,24 +1,30 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { catchError, lastValueFrom } from 'rxjs';
+import { catchError, lastValueFrom, TimeoutError } from 'rxjs';
 import { MailerService } from './mailer.service';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
+import { ConstantsService } from './constants.service';
 
 @Injectable()
 export class HealthCheckService {
   private readonly logger = new Logger(HealthCheckService.name);
+  private isRunning = false;
 
   constructor(
     private readonly httpService: HttpService,
     private readonly mailerService: MailerService,
+    private readonly constantsService: ConstantsService,
   ) {}
 
   private async checkHealth(url: string): Promise<boolean> {
     try {
       const response = await lastValueFrom(
-        this.httpService.get(url).pipe(
-          catchError(() => {
-            throw new Error('Health check failed');
+        this.httpService.get(url, { timeout: 5000 }).pipe(
+          catchError((error) => {
+            if (error instanceof TimeoutError) {
+              this.logger.warn(`No response after timeout for ${url}`);
+            }
+            throw error;
           }),
         ),
       );
@@ -29,44 +35,45 @@ export class HealthCheckService {
     }
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async monitorApps() {
-    this.logger.log('Monitoring apps...');
-    const apps = [
-      {
-        name: 'Pita Dashboard',
-        url: 'https://dolphin-app-vfcjw.ondigitalocean.app/',
-        email: 'alausakabir0@gmail.com',
-      },
-      {
-        name: 'Facebook',
-        url: 'https://www.facebook.com',
-      },
-      {
-        name: 'Recruitment API Service',
-        url: 'https://transaction-api-1.onrender.com/',
-        email: 'alausakabir0@gmail.com',
-      },
-    ];
+    if (this.isRunning) {
+      this.logger.warn(
+        'Previous health check is still running. Skipping this cycle...',
+      );
+      return;
+    }
 
-    for (const app of apps) {
-      let healthy = await this.checkHealth(app.url);
-      if (healthy) {
-        this.logger.log(`App ${app.name} is up and running!`);
-      }
+    this.isRunning = true;
 
-      if (!healthy) {
-        this.logger.error(`App ${app.name} is down. Retrying health check...!`);
-      }
-      for (let i = 0; i < 2 && !healthy; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        healthy = await this.checkHealth(app.url);
-      }
+    try {
+      const apps = this.constantsService.monitoredApps;
+      const healthCheckPromises = apps.map(async (app) => {
+        let healthy = await this.checkHealth(app.url);
+        if (!healthy) {
+          this.logger.error(`App ${app.name} is down. Trying again...`);
 
-      if (!healthy) {
-        this.logger.error(`App ${app.name} is still down. Sending email...!`);
-        await this.mailerService.sendMail(app.email, app.name);
-      }
+          for (let i = 0; i < 2 && !healthy; i++) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            healthy = await this.checkHealth(app.url);
+          }
+
+          if (!healthy) {
+            this.logger.error(
+              `App ${app.name} is still down. Sending email...!`,
+            );
+            await this.mailerService.sendMail(app.email, app.name);
+          }
+        } else {
+          this.logger.log(`App ${app.name} is healthy`);
+        }
+      });
+
+      await Promise.all(healthCheckPromises);
+    } catch (error) {
+      this.logger.error(`Error during health check: ${error.message}`);
+    } finally {
+      this.isRunning = false;
     }
   }
 }

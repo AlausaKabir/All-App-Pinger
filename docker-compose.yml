@@ -1,0 +1,38 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3800:3800'
+    environment: 
+      NODE_ENV: production
+      APP_NAME: PINGER
+      APP_DEV_URL: http://localhost:3800
+      MAIL_SERVICE: gmail
+
+      MAILER_HOST: smtp.gmail.com
+      MAILER_PORT: 465
+
+      # Email to receive the notification
+      APPS_EMAIL: alausakabir0@gmail.com
+
+      # Always reconfirm base on the amount of the registered APIs
+      APP_COUNT: 5
+
+      # Register the APIs here 
+      APP_1_NAME: Pita Dashboard
+      APP_1_URL: https://dolphin-app-vfcjw.ondigitalocean.app/
+      APP_2_NAME: Recruitment API Service
+      APP_2_URL: https://transaction-api-1.onrender.com/
+      APP_3_NAME: Local Host
+      APP_3_URL: http://localhost:3700
+      APP_4_NAME: Facebook
+      APP_4_URL: https://www.facebook.com/
+      APP_5_NAME: Twitter
+      APP_5_URL: https://twitter.com/
+      # Add more apps dynamically by following this pattern
+
+    env_file:
+      - .env
+    command: ["yarn", "start:prod"]

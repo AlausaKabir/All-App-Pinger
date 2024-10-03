@@ -1,8 +1,10 @@
 import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class ConstantsService {
+  private readonly logger = new Logger(ConstantsService.name);
+
   constructor(private readonly config: ConfigService) {}
 
   get appName(): string {
@@ -20,8 +22,35 @@ export class ConstantsService {
     return this.config.get<number>('PORT');
   }
 
+  get regApps(): number {
+    return this.config.get<number>('APP_COUNT');
+  }
   get isProduction(): boolean {
     return this.config.get<string>('NODE_ENV') === 'production';
+  }
+
+  get monitoredApps(): { name: string; url: string; email: string }[] {
+    this.logger.log(`Checking for ${this.regApps} REGISTERED apps...`);
+    try {
+      const apps = [];
+      let i = 1;
+
+      while (this.config.get<string>(`APP_${i}_NAME`)) {
+        apps.push({
+          name: this.config.get<string>(`APP_${i}_NAME`),
+          url: this.config.get<string>(`APP_${i}_URL`),
+          email: this.config.get<string>(`APPS_EMAIL`),
+        });
+        i++;
+      }
+
+      if (apps.length === 0) {
+        this.logger.warn('Cannot find app');
+      }
+      return apps;
+    } catch (error) {
+      this.logger.error(`Error getting monitored apps: ${error.message}`);
+    }
   }
 
   //!FROM HERE

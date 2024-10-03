@@ -28,7 +28,7 @@ export class MailerService {
         from,
         to,
         subject: `Alert : ${appName} is DOWN!!!`,
-        text: `The application ${appName} is down `,
+        text: `The application ${appName} is down and not responding. Please check the application.`,
       });
       this.logger.log(`Message sent: ${info.accepted[0]}`);
     } catch (error) {
