@@ -1,25 +1,27 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { catchError, lastValueFrom, TimeoutError } from 'rxjs';
-import { MailerService } from './mailer.service';
+import { MailerService } from '../services/mailer.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { ConstantsService } from './constants.service';
+import { ServiceCheckService } from 'src/services/serviceCheck.service';
+import { EmailService } from 'src/services/email.service';
 
 @Injectable()
-export class HealthCheckService {
-  private readonly logger = new Logger(HealthCheckService.name);
+export class CronJobs {
+  private readonly logger = new Logger(CronJobs.name);
   private isRunning = false;
 
   constructor(
     private readonly httpService: HttpService,
     private readonly mailerService: MailerService,
-    private readonly constantsService: ConstantsService,
+    private readonly emailService: EmailService,
+    private readonly serviceCheckService: ServiceCheckService,
   ) {}
 
   private async checkHealth(url: string): Promise<boolean> {
     try {
       const response = await lastValueFrom(
-        this.httpService.get(url, { timeout: 5000 }).pipe(
+        this.httpService.get(url, { timeout: 10000 }).pipe(
           catchError((error) => {
             if (error instanceof TimeoutError) {
               this.logger.warn(`No response after timeout for ${url}`);
@@ -47,8 +49,16 @@ export class HealthCheckService {
     this.isRunning = true;
 
     try {
-      const apps = this.constantsService.monitoredApps;
-      const healthCheckPromises = apps.map(async (app) => {
+      const apps = await this.serviceCheckService.getAllServices();
+      if (!apps.length) {
+        this.logger.warn('No apps found to monitor');
+        return;
+      }
+      this.logger.log(`Found and checking for ${apps.length} app(s)...`);
+
+      const email = await this.emailService.getNotificationEmail();
+
+      const healthCheck = apps.map(async (app) => {
         let healthy = await this.checkHealth(app.url);
         if (!healthy) {
           this.logger.error(`App ${app.name} is down. Trying again...`);
@@ -62,14 +72,15 @@ export class HealthCheckService {
             this.logger.error(
               `App ${app.name} is still down. Sending email...!`,
             );
-            await this.mailerService.sendMail(app.email, app.name);
+
+            await this.mailerService.sendMail(email, app.name);
           }
         } else {
           this.logger.log(`App ${app.name} is healthy`);
         }
       });
 
-      await Promise.all(healthCheckPromises);
+      await Promise.all(healthCheck);
     } catch (error) {
       this.logger.error(`Error during health check: ${error.message}`);
     } finally {

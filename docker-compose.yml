@@ -25,8 +25,8 @@ services:
       APP_1_URL: https://dolphin-app-vfcjw.ondigitalocean.app/
       APP_2_NAME: Recruitment API Service
       APP_2_URL: https://transaction-api-1.onrender.com/
-      APP_3_NAME: Local Host
-      APP_3_URL: http://localhost:3700
+      APP_3_NAME: 9PSB Staging API Service
+      APP_3_URL: http://102.216.128.75:9090/identity/api/v1/authenticate
       APP_4_NAME: Facebook
       APP_4_URL: https://www.facebook.com/
       APP_5_NAME: Twitter

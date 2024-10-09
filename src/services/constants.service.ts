@@ -29,30 +29,6 @@ export class ConstantsService {
     return this.config.get<string>('NODE_ENV') === 'production';
   }
 
-  get monitoredApps(): { name: string; url: string; email: string }[] {
-    this.logger.log(`Checking for ${this.regAppsCount} REGISTERED apps...`);
-    try {
-      const apps = [];
-      let i = 1;
-
-      while (this.config.get<string>(`APP_${i}_NAME`)) {
-        apps.push({
-          name: this.config.get<string>(`APP_${i}_NAME`),
-          url: this.config.get<string>(`APP_${i}_URL`),
-          email: this.config.get<string>(`APPS_EMAIL`),
-        });
-        i++;
-      }
-
-      if (apps.length === 0) {
-        this.logger.warn('Cannot find app');
-      }
-      return apps;
-    } catch (error) {
-      this.logger.error(`Error getting monitored apps: ${error.message}`);
-    }
-  }
-
   //!FROM HERE
   get mailService(): string {
     return this.config.get<string>('MAIL_SERVICE');
