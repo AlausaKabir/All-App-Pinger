@@ -37,4 +37,11 @@ export class ServiceRepository {
       data,
     });
   }
+
+  async updateServiceHealth(url: string, healthStatus: HealthStatus) {
+    return this.prisma.service.update({
+      where: { url },
+      data: { healthStatus },
+    });
+  }
 }

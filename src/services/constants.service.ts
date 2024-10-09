@@ -3,8 +3,6 @@ import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class ConstantsService {
-  private readonly logger = new Logger(ConstantsService.name);
-
   constructor(private readonly config: ConfigService) {}
 
   get appName(): string {

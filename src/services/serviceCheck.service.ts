@@ -28,4 +28,8 @@ export class ServiceCheckService {
     }
     return result;
   }
+
+  async updateServiceHealth(url: string, healthStatus: HealthStatus) {
+    return this.serviceRepo.updateServiceHealth(url, healthStatus);
+  }
 }

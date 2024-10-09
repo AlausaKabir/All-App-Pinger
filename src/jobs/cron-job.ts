@@ -5,6 +5,7 @@ import { MailerService } from '../services/mailer.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ServiceCheckService } from 'src/services/serviceCheck.service';
 import { EmailService } from 'src/services/email.service';
+import { HealthStatus } from '@prisma/client';
 
 @Injectable()
 export class CronJobs {
@@ -60,6 +61,12 @@ export class CronJobs {
 
       const healthCheck = apps.map(async (app) => {
         let healthy = await this.checkHealth(app.url);
+        if (healthy) {
+          await this.serviceCheckService.updateServiceHealth(
+            app.url,
+            HealthStatus.UP,
+          );
+        }
         if (!healthy) {
           this.logger.error(`App ${app.name} is down. Trying again...`);
 
@@ -72,7 +79,10 @@ export class CronJobs {
             this.logger.error(
               `App ${app.name} is still down. Sending email...!`,
             );
-
+            await this.serviceCheckService.updateServiceHealth(
+              app.url,
+              HealthStatus.DOWN,
+            );
             await this.mailerService.sendMail(email, app.name);
           }
         } else {

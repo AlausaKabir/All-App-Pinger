@@ -15,10 +15,14 @@ export class PrismaService
   private readonly logger = new Logger(PrismaService.name);
 
   constructor(private configService: ConfigService) {
+    const isProduction = configService.get<string>('NODE_ENV') === 'production';
+    const databaseUrl = isProduction
+      ? configService.get<string>('PROD_DATABASE_URL')
+      : configService.get<string>('DATABASE_URL');
     super({
       datasources: {
         db: {
-          url: configService.get<string>('DATABASE_URL'),
+          url: databaseUrl,
         },
       },
     });
