@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -11,12 +11,9 @@ export class EmailRepository {
     });
 
     if (emailExists) {
-      throw new Error('Email already exists');
+      throw new HttpException('Email already exists', 400);
     }
-
-    return this.prisma.email.create({
-      data,
-    });
+    throw new HttpException('Something went wrong', 500);
   }
 
   async getNotificationEmail(): Promise<string> {

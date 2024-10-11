@@ -1,9 +1,18 @@
-import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Logger, Post, UseGuards } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateServiceDto } from 'src/dto/services.dto';
 import { ServiceCheckService } from 'src/services/serviceCheck.service';
 
 @ApiTags('Services')
+@ApiBearerAuth('JWT-auth')
+@UseGuards(JwtAuthGuard)
 @Controller('service-check')
 export class ServiceCheckController {
   private readonly logger = new Logger(ServiceCheckController.name);

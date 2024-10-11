@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EmailRepository } from 'src/repositories/email.respository';
 
 @Injectable()
@@ -10,8 +10,12 @@ export class EmailService {
       return this.emailRepo.registerEmail(data);
     } catch (error) {
       if (error.message.includes('Email already exists')) {
-        throw new Error('Email already exists');
+        throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
       }
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -20,8 +24,12 @@ export class EmailService {
       return this.emailRepo.getNotificationEmail();
     } catch (error) {
       if (error.message.includes('No email found')) {
-        throw new Error('No email found');
+        throw new HttpException('No email found', HttpStatus.NOT_FOUND);
       }
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
