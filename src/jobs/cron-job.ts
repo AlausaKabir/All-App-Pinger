@@ -61,7 +61,7 @@ export class CronJobs {
 
       const healthCheck = apps.map(async (app) => {
         let healthy = await this.checkHealth(app.url);
-        if (healthy) {
+        if (healthy && app.healthStatus === HealthStatus.DOWN) {
           await this.serviceCheckService.updateServiceHealth(
             app.url,
             HealthStatus.UP,

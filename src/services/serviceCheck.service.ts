@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HealthStatus } from '@prisma/client';
 import { ServiceRepository } from 'src/repositories/service-check.repository';
 
 @Injectable()
 export class ServiceCheckService {
+  private readonly logger = new Logger(ServiceCheckService.name);
+
   constructor(private readonly serviceRepo: ServiceRepository) {}
 
   async registerService(data: {
@@ -30,6 +32,7 @@ export class ServiceCheckService {
   }
 
   async updateServiceHealth(url: string, healthStatus: HealthStatus) {
+    this.logger.log(`Updating health status for ${url} to ${healthStatus}`);
     return this.serviceRepo.updateServiceHealth(url, healthStatus);
   }
 }
