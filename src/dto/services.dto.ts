@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { HealthStatus } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 export class CreateServiceDto {
   @ApiProperty({ example: 'Service Name' })
@@ -14,5 +20,6 @@ export class CreateServiceDto {
   url: string;
 
   @IsEnum(HealthStatus)
+  @IsOptional()
   healthStatus: HealthStatus;
 }
