@@ -36,7 +36,13 @@ export class EmailController {
   @ApiResponse({ status: 500, description: 'Something went wrong' })
   async registerEmail(@Body() registerEmailDto: RegisterEmailDto) {
     try {
-      return this.emailService.registerEmail(registerEmailDto);
+      const result = this.emailService.registerEmail(registerEmailDto);
+
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Email registered successfully',
+        data: result,
+      };
     } catch (error) {
       this.logger.error(`Error registering email: ${error.message}`);
       if (error.message === 'Email already exists') {
@@ -60,7 +66,13 @@ export class EmailController {
   @ApiResponse({ status: 500, description: 'Something went wrong' })
   async getNotificationEmail() {
     try {
-      return this.emailService.getNotificationEmail();
+      const result = this.emailService.getNotificationEmail();
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Notification email retrieved successfully',
+        data: result,
+      };
     } catch (error) {
       this.logger.error(
         `Error retrieving notification email: ${error.message}`,

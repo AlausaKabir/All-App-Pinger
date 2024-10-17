@@ -19,7 +19,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { HttpStatusCode } from 'axios';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateServiceDto } from 'src/dto/services.dto';
 import { ServiceCheckService } from 'src/services/serviceCheck.service';
@@ -38,7 +37,13 @@ export class ServiceCheckController {
   @ApiResponse({ status: 201, description: 'Service registered successfully' })
   async registerService(@Body() createServiceDto: CreateServiceDto) {
     try {
-      return this.serviceCheckService.registerService(createServiceDto);
+      const result = this.serviceCheckService.registerService(createServiceDto);
+
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Service registered successfully',
+        data: result,
+      };
     } catch (error) {
       this.logger.error(`Error registering service: ${error.message}`);
       if (error.message === 'Service already exists') {
@@ -60,7 +65,13 @@ export class ServiceCheckController {
   @ApiResponse({ status: 200, description: 'Services retrieved successfully' })
   async getAllServices() {
     try {
-      return this.serviceCheckService.getAllServices();
+      const result = this.serviceCheckService.getAllServices();
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Services retrieved successfully',
+        data: result,
+      };
     } catch (error) {
       this.logger.error(`Error retrieving services: ${error.message}`);
     }
@@ -73,10 +84,8 @@ export class ServiceCheckController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async deleteService(@Param('id') id: string) {
     try {
-      const result = this.serviceCheckService.deleteService(id);
-      if (!result) {
-        throw new NotFoundException('Service not found');
-      }
+      await this.serviceCheckService.deleteService(id);
+
       this.logger.log(`Service with ID ${id} deleted successfully`);
       return {
         statusCode: HttpStatus.OK,
