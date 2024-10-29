@@ -21,11 +21,7 @@ export class AuthService {
 
     const newUser = await this.authRepository.createUser(data);
 
-    return {
-      statusCode: HttpStatus.CREATED,
-      message: 'User created successfully',
-      data: newUser,
-    };
+    return newUser;
   }
 
   private async validateUser(email: string, password: string) {
@@ -46,7 +42,6 @@ export class AuthService {
 
     const payload = { email: user.email, sub: user.id };
     return {
-      statusCode: HttpStatus.OK,
       access_token: this.jwtService.sign(payload),
       user: {
         id: user.id,

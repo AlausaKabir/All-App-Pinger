@@ -25,7 +25,14 @@ export class AuthController {
   @ApiResponse({ status: 500, description: 'Something went wrong' })
   async signup(@Body() signupDto: SignupDto) {
     try {
-      return this.authService.signup(signupDto);
+      const result = this.authService.signup(signupDto);
+
+      return {
+        statusCode: HttpStatus.CREATED,
+        status: 'success',
+        message: 'User registered successfully',
+        data: result,
+      };
     } catch (error) {
       this.logger.error(`Error registering user: ${error.message}`);
       if (error.message === 'Email already exists') {
@@ -46,7 +53,12 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     try {
       const loginResult = await this.authService.login(loginDto);
-      return loginResult;
+      return {
+        statusCode: HttpStatus.OK,
+        status: 'success',
+        message: 'User logged in successfully',
+        data: loginResult,
+      };
     } catch (error) {
       this.logger.error(`Error logging in user: ${error.message}`);
       throw new HttpException(

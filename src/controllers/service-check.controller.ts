@@ -7,7 +7,6 @@ import {
   HttpStatus,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -19,6 +18,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { stat } from 'fs';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateServiceDto } from 'src/dto/services.dto';
 import { ServiceCheckService } from 'src/services/serviceCheck.service';
@@ -41,6 +41,7 @@ export class ServiceCheckController {
 
       return {
         statusCode: HttpStatus.CREATED,
+        status: 'success',
         message: 'Service registered successfully',
         data: result,
       };
@@ -69,6 +70,7 @@ export class ServiceCheckController {
 
       return {
         statusCode: HttpStatus.OK,
+        status: 'success',
         message: 'Services retrieved successfully',
         data: result,
       };

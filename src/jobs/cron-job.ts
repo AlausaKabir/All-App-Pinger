@@ -38,7 +38,7 @@ export class CronJobs {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron('0 */1 * * * *')
   async monitorApps() {
     if (this.isRunning) {
       this.logger.warn(
