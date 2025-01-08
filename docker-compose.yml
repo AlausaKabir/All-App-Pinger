@@ -8,12 +8,15 @@ services:
     environment: 
       NODE_ENV: development
       APP_NAME: PINGER
-      APP_DEV_URL: http://localhost:3800
       MAIL_SERVICE: gmail
-
+      JWT_SECRET: whatever_secret
+      JWT_EXPIRES: 1d
+      DATABASE_URL: mongodb+srv://mumunikabiru007:LiwhISSdmKy5iN0s@cluster0.s1ryv.mongodb.net/myDatabase?retryWrites=true&w=majority&appName=cluster0
       MAILER_HOST: smtp.gmail.com
       MAILER_PORT: 465
+      MAILER_SERVICE: gmail
+      NODEMAILER_EMAIL: alausakabir0@gmail.com
+      NODEMAILER_PASSWORD: wktmvbobccqrhswx
 
-    env_file:
-      - .env
+
     command: ["yarn", "start:prod"]
