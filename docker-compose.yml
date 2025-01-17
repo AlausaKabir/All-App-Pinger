@@ -1,22 +1,48 @@
+
 services:
-  app:
+  pinger:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - '3800:3800'
+    depends_on:
+      - mongodb
     environment: 
       NODE_ENV: development
       APP_NAME: PINGER
       MAIL_SERVICE: gmail
       JWT_SECRET: whatever_secret
       JWT_EXPIRES: 1d
-      DATABASE_URL: mongodb+srv://mumunikabiru007:LiwhISSdmKy5iN0s@cluster0.s1ryv.mongodb.net/myDatabase?retryWrites=true&w=majority&appName=cluster0
+      DATABASE_URL: mongodb://admin:password@pinger-mongodb:27017/pinger?authSource=admin&replicaSet=rs0&directConnection=true
       MAILER_HOST: smtp.gmail.com
       MAILER_PORT: 465
       MAILER_SERVICE: gmail
       NODEMAILER_EMAIL: alausakabir0@gmail.com
       NODEMAILER_PASSWORD: wktmvbobccqrhswx
+    networks:
+      - pinger-network
+
+  mongodb:
+    image: prismagraphql/mongo-single-replica:5.0.3
+    container_name: pinger-mongodb
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_REPLICA_SET_NAME: rs0
+    networks:
+      - pinger-network
+    volumes:
+      - pinger_mongodb_data:/data/db
+    restart: unless-stopped
+
+networks:
+  pinger-network: 
+    driver: bridge
+
+volumes:
+  pinger_mongodb_data: 
 
 
-    command: ["yarn", "start:prod"]

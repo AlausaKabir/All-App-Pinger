@@ -9,12 +9,12 @@ export class ConstantsService {
     return this.config.get<string>('APP_NAME', 'DefaultApp');
   }
 
-  get appUrl(): string {
-    const nodeEnv = this.config.get<string>('NODE_ENV');
-    return nodeEnv === 'production'
-      ? this.config.get<string>('APP_PROD_URL')
-      : this.config.get<string>('APP_DEV_URL');
-  }
+  // get appUrl(): string {
+  //   const nodeEnv = this.config.get<string>('NODE_ENV');
+  //   return nodeEnv === 'production'
+  //     ? this.config.get<string>('APP_PROD_URL')
+  //     : this.config.get<string>('APP_DEV_URL');
+  // }
 
   get port(): number {
     return this.config.get<number>('PORT');
@@ -42,6 +42,10 @@ export class ConstantsService {
 
   get mailerHost(): string {
     return this.config.get<string>('MAILER_HOST');
+  }
+
+  get databaseUrl(): string {
+    return this.config.get<string>('DATABASE_URL');
   }
 
   get mailerPort(): number {
