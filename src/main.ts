@@ -28,15 +28,7 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   await app.listen(constantService.port, () => {
-    Logger.log(
-      `
-        #################################################
-        🛡  ${constantService.appName} API is running! Access URLs:
-        🏠 HomePage:      ${constantService.appUrl}
-        📄 Swagger Docs: ${constantService.appUrl}/docs/
-        #################################################
-        `,
-    );
+    Logger.log(`Server running on port  ${constantService.port}`);
   });
 }
 bootstrap();

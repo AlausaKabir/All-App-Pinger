@@ -15,25 +15,21 @@ export class PrismaService
   private readonly logger = new Logger(PrismaService.name);
 
   constructor(private configService: ConfigService) {
-    const isProduction = configService.get<string>('NODE_ENV') === 'production';
-    const databaseUrl = isProduction
-      ? configService.get<string>('PROD_DATABASE_URL')
-      : configService.get<string>('DATABASE_URL');
     super({
       datasources: {
         db: {
-          url: databaseUrl,
+          url: configService.get<string>('DATABASE_URL'),
         },
       },
     });
   }
   async onModuleInit() {
     await this.$connect();
-    this.logger.log(`Database connection established`);
+    this.logger.log(`Prisma connected to DB`);
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
-    this.logger.log(`Database connection closed`);
+    this.logger.log(`Prisma Database connection CLOSED`);
   }
 }
