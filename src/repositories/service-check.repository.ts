@@ -51,10 +51,15 @@ export class ServiceRepository {
     if (existingService) {
       throw new HttpException('Service already exists', HttpStatus.BAD_REQUEST);
     }
-    throw new HttpException(
-      'Failed to register service',
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+
+    // ✅ Actually create the service!
+    return this.prisma.service.create({
+      data: {
+        name: data.name,
+        url: data.url,
+        healthStatus: data.healthStatus,
+      },
+    });
   }
 
   async updateServiceHealth(url: string, healthStatus: HealthStatus) {

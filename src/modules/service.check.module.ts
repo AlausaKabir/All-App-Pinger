@@ -10,7 +10,7 @@ import { EmailRepository } from 'src/repositories/email.respository';
 import { ServiceRepository } from 'src/repositories/service-check.repository';
 import { EmailService } from 'src/services/email.service';
 import { MailerService } from 'src/services/mailer.service';
-import { MongoConnectionService } from 'src/services/mongoConnection.service';
+// import { MongoConnectionService } from 'src/services/mongoConnection.service';
 import { ServiceCheckService } from 'src/services/serviceCheck.service';
 
 @Module({
@@ -26,7 +26,7 @@ import { ServiceCheckService } from 'src/services/serviceCheck.service';
     EmailService,
     MailerService,
     ServiceCheckService,
-    MongoConnectionService,
+    // MongoConnectionService,
   ],
   exports: [ServiceCheckService, EmailService],
 })

@@ -25,7 +25,9 @@ export class AuthController {
   @ApiResponse({ status: 500, description: 'Something went wrong' })
   async signup(@Body() signupDto: SignupDto) {
     try {
-      const result = this.authService.signup(signupDto);
+      console.log("Registering user with data:", signupDto);
+      const result = await this.authService.signup(signupDto);
+      this.logger.log(`User registered successfully: ${result.email}`);
 
       return {
         statusCode: HttpStatus.CREATED,

@@ -7,6 +7,7 @@ import {
   Logger,
   Post,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -16,12 +17,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AdminGuard } from 'src/auth/admin.guard';
 import { RegisterEmailDto } from 'src/dto/email.dto';
 import { EmailService } from 'src/services/email.service';
+import { RolePermissions } from 'src/interfaces/role.interface';
+
+interface AuthenticatedRequest extends Request {
+  user: any;
+  permissions: RolePermissions;
+}
 
 @ApiTags('Email')
 @ApiBearerAuth('JWT-auth')
-@UseGuards(JwtAuthGuard)
 @Controller('email')
 export class EmailController {
   private readonly logger = new Logger(EmailController.name);
@@ -29,59 +36,85 @@ export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Register an email' })
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Register an email (Admin only)' })
   @ApiBody({ type: RegisterEmailDto })
   @ApiResponse({ status: 201, description: 'Email registered successfully' })
-  @ApiResponse({ status: 400, description: 'Email already exists' })
-  @ApiResponse({ status: 500, description: 'Something went wrong' })
-  async registerEmail(@Body() registerEmailDto: RegisterEmailDto) {
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async registerEmail(
+    @Body() registerEmailDto: RegisterEmailDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
     try {
-      const result = this.emailService.registerEmail(registerEmailDto);
-
-      return {
-        statusCode: HttpStatus.CREATED,
-        message: 'Email registered successfully',
-        data: result,
-      };
-    } catch (error) {
-      this.logger.error(`Error registering email: ${error.message}`);
-      if (error.message === 'Email already exists') {
-        throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
-      } else {
+      // 🔥 Clean permission check
+      if (!req.permissions?.canManageEmails) {
+        this.logger.error(
+          `User ${req.user?.email || 'unknown'} attempted to register email without permission`,
+        );
         throw new HttpException(
-          'Something went wrong',
+          'Internal Server Error',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
+
+      this.logger.log(
+        `Admin ${req.user?.email} registering notification email: ${registerEmailDto.email}`,
+      );
+      const result = await this.emailService.registerEmail(registerEmailDto);
+
+      return {
+        statusCode: HttpStatus.CREATED,
+        status: 'success',
+        message: 'Email registered for notifications successfully',
+        data: result,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error(`Failed to register email: ${error.message}`);
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Get('notification-email')
-  @ApiOperation({ summary: 'Get notification email' })
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Get notification emails (Admin only)' })
   @ApiResponse({
     status: 200,
-    description: 'Notification email retrieved successfully',
+    description: 'Notification emails retrieved successfully',
   })
-  @ApiResponse({ status: 404, description: 'No email found' })
-  @ApiResponse({ status: 500, description: 'Something went wrong' })
-  async getNotificationEmail() {
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async getNotificationEmail(@Request() req: AuthenticatedRequest) {
     try {
-      const result = this.emailService.getNotificationEmail();
+      if (!req.permissions?.canManageEmails) {
+        this.logger.error(
+          `User ${req.user?.email || 'unknown'} attempted to view emails without permission`,
+        );
+        throw new HttpException(
+          'Internal Server Error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      const result = await this.emailService.getNotificationEmail();
 
       return {
         statusCode: HttpStatus.OK,
-        message: 'Notification email retrieved successfully',
+        status: 'success',
+        message: 'Notification emails retrieved successfully',
         data: result,
       };
     } catch (error) {
-      this.logger.error(
-        `Error retrieving notification email: ${error.message}`,
-      );
-      if (error.message === 'No email found') {
-        throw new HttpException('No email found', HttpStatus.NOT_FOUND);
+      if (error instanceof HttpException) {
+        throw error;
       }
+      this.logger.error(`Failed to get notification emails: ${error.message}`);
       throw new HttpException(
-        'Something went wrong',
+        'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

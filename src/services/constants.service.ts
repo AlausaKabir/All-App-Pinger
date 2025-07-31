@@ -9,13 +9,6 @@ export class ConstantsService {
     return this.config.get<string>('APP_NAME', 'DefaultApp');
   }
 
-  // get appUrl(): string {
-  //   const nodeEnv = this.config.get<string>('NODE_ENV');
-  //   return nodeEnv === 'production'
-  //     ? this.config.get<string>('APP_PROD_URL')
-  //     : this.config.get<string>('APP_DEV_URL');
-  // }
-
   get port(): number {
     return this.config.get<number>('PORT');
   }

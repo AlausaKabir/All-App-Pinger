@@ -13,7 +13,14 @@ export class EmailRepository {
     if (emailExists) {
       throw new HttpException('Email already exists', 400);
     }
-    throw new HttpException('Something went wrong', 500);
+
+    // ✅ Actually create the email record!
+    return this.prisma.email.create({
+      data: {
+        email: data.email,
+        isActive: true,
+      },
+    });
   }
 
   async getNotificationEmail(): Promise<string> {

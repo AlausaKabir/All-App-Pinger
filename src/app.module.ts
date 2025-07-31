@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ConstantsService } from './services/constants.service';
 import { ServiceCheckModule } from './modules/service.check.module';
 import { MailerModule } from './modules/mailer.module';
+import { UserModule } from './modules/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServiceCheckController } from './controllers/service-check.controller';
 import { AuthModule } from './auth/auth.module';
@@ -18,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
     ServiceCheckModule,
     MailerModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [
     AppController,

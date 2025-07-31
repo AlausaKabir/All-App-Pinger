@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { HealthStatus } from '@prisma/client';
 import { ServiceRepository } from 'src/repositories/service-check.repository';
+import { IService } from 'src/types/interfaces';
 
 @Injectable()
 export class ServiceCheckService {
@@ -8,11 +9,7 @@ export class ServiceCheckService {
 
   constructor(private readonly serviceRepo: ServiceRepository) {}
 
-  async registerService(data: {
-    name: string;
-    url: string;
-    healthStatus?: HealthStatus;
-  }) {
+  async registerService(data: IService) {
     try {
       const serviceData = { ...data, healthStatus: HealthStatus.UP };
 
