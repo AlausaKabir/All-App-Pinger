@@ -35,13 +35,13 @@ export class MailerService {
       `This is to notify you that the application "${appName}" is currently down and not responding as of ${formattedDate}. ` +
       `Please take immediate action to investigate and restore the system.\n\n` +
       `Regards,\n` +
-      `Team WARPSPEED`;
+      `Mgt Team`;
 
     const html = `
     <p>Dear team,</p>
     <p>This is to notify you that the application <strong>${appName}</strong> is currently down and not responding as of <strong>${formattedDate}</strong>.</p>
     <p>Please take immediate action to investigate and restore the system.</p>
-    <p>Regards,<br/>Team WARPSPEED</p>
+    <p>Regards,<br/>Mgt Team</p>
   `;
 
     try {

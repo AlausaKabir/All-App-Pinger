@@ -2,6 +2,7 @@ import { ConstantsService } from '../services/constants.service';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { EmailController } from 'src/controllers/email.controller';
 import { ServiceCheckController } from 'src/controllers/service-check.controller';
 import { CronJobs } from 'src/jobs/cron-job';
@@ -14,10 +15,16 @@ import { MailerService } from 'src/services/mailer.service';
 import { ServiceCheckService } from 'src/services/serviceCheck.service';
 
 @Module({
-  imports: [HttpModule, PrismaModule],
+  imports: [
+    HttpModule,
+    PrismaModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES },
+    }),
+  ],
+  controllers: [EmailController, ServiceCheckController],
   providers: [
-    EmailController,
-    ServiceCheckController,
     EmailRepository,
     ServiceRepository,
     ConfigService,

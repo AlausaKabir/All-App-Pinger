@@ -1,5 +1,3 @@
-import { AuthController } from './auth/auth.controller';
-import { EmailController } from './controllers/email.controller';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,7 +7,6 @@ import { ServiceCheckModule } from './modules/service.check.module';
 import { MailerModule } from './modules/mailer.module';
 import { UserModule } from './modules/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ServiceCheckController } from './controllers/service-check.controller';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
@@ -21,12 +18,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     UserModule,
   ],
-  controllers: [
-    AppController,
-    AuthController,
-    EmailController,
-    ServiceCheckController,
-  ],
+  controllers: [AppController],
   providers: [AppService, ConstantsService],
 })
 export class AppModule {}

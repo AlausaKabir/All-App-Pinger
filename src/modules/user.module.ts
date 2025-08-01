@@ -8,7 +8,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 @Module({
   imports: [
     PrismaModule,
-    JwtModule, // For the guards
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES },
+    }),
   ],
   controllers: [UserController],
   providers: [UserService, UserRepository],

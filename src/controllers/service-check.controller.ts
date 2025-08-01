@@ -37,6 +37,7 @@ export class ServiceCheckController {
   @ApiResponse({ status: 201, description: 'Service registered successfully' })
   async registerService(@Body() createServiceDto: CreateServiceDto) {
     try {
+      this.logger.log('Registering service with data:', createServiceDto);
       const result = this.serviceCheckService.registerService(createServiceDto);
 
       return {
@@ -66,7 +67,7 @@ export class ServiceCheckController {
   @ApiResponse({ status: 200, description: 'Services retrieved successfully' })
   async getAllServices() {
     try {
-      const result = this.serviceCheckService.getAllServices();
+      const result = await this.serviceCheckService.getAllServices();
 
       return {
         statusCode: HttpStatus.OK,
