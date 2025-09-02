@@ -32,4 +32,43 @@ export class EmailService {
       );
     }
   }
+
+  async getAllNotificationEmails() {
+    try {
+      return this.emailRepo.getAllNotificationEmails();
+    } catch (error) {
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async toggleEmailStatus(emailId: string) {
+    try {
+      return this.emailRepo.toggleEmailStatus(emailId);
+    } catch (error) {
+      if (error.message.includes('Email not found')) {
+        throw new HttpException('Email not found', HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteNotificationEmail(emailId: string) {
+    try {
+      return this.emailRepo.deleteNotificationEmail(emailId);
+    } catch (error) {
+      if (error.message.includes('Email not found')) {
+        throw new HttpException('Email not found', HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

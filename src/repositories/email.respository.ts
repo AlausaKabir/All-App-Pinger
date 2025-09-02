@@ -27,4 +27,39 @@ export class EmailRepository {
     const email = await this.prisma.email.findFirst();
     return email.email;
   }
+
+  async getAllNotificationEmails() {
+    return this.prisma.email.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async toggleEmailStatus(emailId: string) {
+    const email = await this.prisma.email.findUnique({
+      where: { id: emailId },
+    });
+
+    if (!email) {
+      throw new HttpException('Email not found', 404);
+    }
+
+    return this.prisma.email.update({
+      where: { id: emailId },
+      data: { isActive: !email.isActive },
+    });
+  }
+
+  async deleteNotificationEmail(emailId: string) {
+    const email = await this.prisma.email.findUnique({
+      where: { id: emailId },
+    });
+
+    if (!email) {
+      throw new HttpException('Email not found', 404);
+    }
+
+    return this.prisma.email.delete({
+      where: { id: emailId },
+    });
+  }
 }

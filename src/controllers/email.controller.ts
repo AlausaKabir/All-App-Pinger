@@ -8,6 +8,9 @@ import {
   Post,
   UseGuards,
   Request,
+  Patch,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -113,6 +116,126 @@ export class EmailController {
         throw error;
       }
       this.logger.error(`Failed to get notification emails: ${error.message}`);
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('emails')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Get all notification emails (Admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'All notification emails retrieved successfully',
+  })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async getAllNotificationEmails(@Request() req: AuthenticatedRequest) {
+    try {
+      if (!req.permissions?.canManageEmails) {
+        this.logger.error(
+          `User ${req.user?.email || 'unknown'} attempted to view emails without permission`,
+        );
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
+
+      const result = await this.emailService.getAllNotificationEmails();
+
+      return {
+        statusCode: HttpStatus.OK,
+        status: 'success',
+        message: 'All notification emails retrieved successfully',
+        data: result,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error(
+        `Failed to get all notification emails: ${error.message}`,
+      );
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Patch('toggle/:id')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Toggle email status (Admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Email status toggled successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Email not found' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async toggleEmailStatus(
+    @Param('id') emailId: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    try {
+      if (!req.permissions?.canManageEmails) {
+        this.logger.error(
+          `User ${req.user?.email || 'unknown'} attempted to toggle email status without permission`,
+        );
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
+
+      const result = await this.emailService.toggleEmailStatus(emailId);
+
+      return {
+        statusCode: HttpStatus.OK,
+        status: 'success',
+        message: 'Email status toggled successfully',
+        data: result,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error(`Failed to toggle email status: ${error.message}`);
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Delete notification email (Admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Email deleted successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Email not found' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async deleteNotificationEmail(
+    @Param('id') emailId: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    try {
+      if (!req.permissions?.canManageEmails) {
+        this.logger.error(
+          `User ${req.user?.email || 'unknown'} attempted to delete email without permission`,
+        );
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
+
+      await this.emailService.deleteNotificationEmail(emailId);
+
+      return {
+        statusCode: HttpStatus.OK,
+        status: 'success',
+        message: 'Email deleted successfully',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error(`Failed to delete email: ${error.message}`);
       throw new HttpException(
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
