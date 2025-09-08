@@ -15,7 +15,7 @@ export class CreateServiceDto {
   name: string;
 
   @ApiProperty({ example: 'http://service-url.com' })
-  @IsUrl()
+  // @IsUrl() 
   @IsNotEmpty()
   url: string;
 

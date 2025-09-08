@@ -53,6 +53,7 @@ export class AuthService {
         user: {
           id: user.id,
           email: user.email,
+          role: user.role, // 🔥 THIS WAS MISSING! Now frontend can detect superadmin role
         },
       };
     } catch (error) {

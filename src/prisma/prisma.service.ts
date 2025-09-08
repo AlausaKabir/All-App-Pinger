@@ -41,11 +41,8 @@ export class PrismaService
     try {
       this.logger.log('🌱 Starting database seeding...');
 
-      // 🔥 Seed SuperAdmin
+      // 🔥 Seed SuperAdmin ONLY
       await this.seedSuperAdmin();
-
-      // 🔥 Seed Default Notification Email
-      await this.seedDefaultNotificationEmail();
 
       this.logger.log('🎉 Database seeding completed successfully!');
     } catch (error) {
@@ -59,8 +56,9 @@ export class PrismaService
     const superAdminPassword = this.configService.get<string>(
       'SUPERADMIN_PASSWORD',
     );
-    const saltRounds =
-      this.configService.get<number>('BCRYPT_SALT_ROUNDS') || 10;
+    const saltRoundsStr =
+      this.configService.get<string>('BCRYPT_SALT_ROUNDS') || '10';
+    const saltRounds = parseInt(saltRoundsStr, 10);
 
     if (!superAdminEmail || !superAdminPassword) {
       this.logger.warn(
@@ -68,6 +66,11 @@ export class PrismaService
       );
       return;
     }
+
+    // 🔍 Debug logging
+    this.logger.debug(
+      `🔐 Salt rounds: ${saltRounds} (from env: ${saltRoundsStr})`,
+    );
 
     const existingSuperAdmin = await this.user.findFirst({
       where: { role: UserRole.SUPERADMIN },
@@ -94,32 +97,5 @@ export class PrismaService
     this.logger.warn(
       '⚠️  Please change the default password after first login!',
     );
-  }
-
-  private async seedDefaultNotificationEmail(): Promise<void> {
-    const superAdminEmail = this.configService.get<string>('SUPERADMIN_EMAIL');
-
-    if (!superAdminEmail) {
-      this.logger.warn(
-        '⚠️ SUPERADMIN_EMAIL not configured. Skipping notification email seeding.',
-      );
-      return;
-    }
-
-    const existingEmail = await this.email.findFirst();
-
-    if (existingEmail) {
-      this.logger.log('📧 Notification email already exists - skipping seed');
-      return;
-    }
-
-    await this.email.create({
-      data: {
-        email: superAdminEmail,
-        isActive: true,
-      },
-    });
-
-    this.logger.log('✅ Default notification email seeded!');
   }
 }
