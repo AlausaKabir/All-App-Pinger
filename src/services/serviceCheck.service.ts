@@ -45,7 +45,7 @@ export class ServiceCheckService {
   }
 
   async updateServiceHealth(url: string, healthStatus: HealthStatus) {
-    this.logger.log(`Updating health status for ${url} to ${healthStatus}`);
+    this.logger.warn(`Updating health status for ${url} to ${healthStatus}`);
     return this.serviceRepo.updateServiceHealth(url, healthStatus);
   }
 
